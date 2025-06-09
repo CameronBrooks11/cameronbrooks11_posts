@@ -1,16 +1,11 @@
 ---
 layout: post
-title:  "First Post!"
-date:   2025-06-09 11:03:12 -0400
-categories: general
----
-layout: post
-title:  "First Post!"
-date:   2025-06-09 11:03:12 -0400
+title: "First Post!"
+date: 2025-06-09 11:03:12 -0400
 categories: general
 ---
 
-Welcome to my new blog! 🎉 
+Welcome to my new blog! 🎉
 
 I'll be sharing updates about my various projects, including my work on open-source hardware and software, rocket engineering adventures, and my journey through grad school.
 
@@ -24,4 +19,3 @@ Stay tuned for:
 Excited to have you along for the ride!
 
 — Cameron 🚀
-
