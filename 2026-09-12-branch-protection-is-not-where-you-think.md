@@ -172,17 +172,24 @@ The configuration still exists. It is neither readable nor enforced. If your
 scanner treats 403 as "skip", it reports nothing wrong. If it treats 403 as "not
 protected", it reports a failure that is not the one that is actually happening.
 
-**Changing repository visibility destroys classic branch protection.** This one I
-reproduced twice and still find slightly hard to believe. Before: one required
-approval, `enforce_admins` on, one required status check. Toggle the repo to
-private and back to public, touching nothing else. After:
-`404 Branch not protected`. Gone. Rulesets survive the same toggle untouched.
+**On a free organisation, changing repository visibility destroys classic branch
+protection.** This one I reproduced twice and still find slightly hard to
+believe. Before: one required approval, `enforce_admins` on, one required status
+check. Toggle the repo to private and back to public, touching nothing else.
+After: `404 Branch not protected`. Gone. Rulesets survive the same toggle
+untouched.
 
 In fairness: a free-tier private repository cannot hold branch protection, so
 GitHub arguably has to drop it on the way in. But it does not restore it on the
 way out, it does not warn you, and the action that triggered it — changing
-visibility — has nothing to do with branch protection. If you are on a paid plan
-this may not reproduce, and I would be glad of a data point either way.
+visibility — has nothing to do with branch protection.
+
+*Update, 2026-10-07:* on a paid plan it does not reproduce. On a GitHub Team
+organisation, the same protection (one approval, `enforce_admins` on, one
+required check) survived the private-and-back round trip twice, and stayed
+readable while the repository was private. So this is the free tier's forced
+removal on the way to private, never restored on the way back. It is not a
+general property of visibility changes.
 
 ## So what is the actual claim
 
@@ -261,10 +268,14 @@ the exact before/after states, is
 If you know that any of this is wrong — particularly the claim that no single
 endpoint gives effective branch protection — I would genuinely like to be
 corrected. The easiest way is an issue on the
-[evidence repository](https://github.com/baseliner-sandbox/test-ruleset-precedence/issues);
-a paid-plan data point on the visibility toggle would be especially welcome.
+[evidence repository](https://github.com/baseliner-sandbox/test-ruleset-precedence/issues).
 
 ## Corrections
+
+**2026-10-07.** The visibility-toggle finding is free-plan only. On a GitHub
+Team organisation classic protection survived the round trip, 2 out of 2. The
+section now says so, and the closing request for a paid-plan data point is
+gone, since this answers it.
 
 **2026-10-06.** A source check before sharing this more widely turned up errors,
 now fixed in place:
