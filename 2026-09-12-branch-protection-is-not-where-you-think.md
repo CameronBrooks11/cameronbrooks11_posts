@@ -9,18 +9,19 @@ categories: DevOps
 
 Let me start by conceding the thing that makes most posts like this wrong.
 
-Platform vendors are, on the whole, careful about this. GitLab maintains 378
-machine-readable deprecation files with impact, scope and resolution role on each
-one, gave 27 months of runway on its CI job-token removal, and publishes a
-breaking-changes post four weeks before every major release. GitHub's new defaults
-are explicitly not applied retroactively — *"This change will not impact any
-existing enterprises, organizations or repositories"* is boilerplate at this
-point. Azure DevOps says the equivalent in four separate sprint notes. When
-GitHub actually retired a protection primitive, tag protections, it gave three
-months' notice, shipped a migration tool eight months early, ran three escalating
-API brownouts, and auto-migrated anything left behind. Rule Insights went GA in
-August 2026 and will show you, free, every ruleset evaluation across your whole
-org with the most active bypassers ranked.
+Platform vendors are, on the whole, careful about this. GitLab maintains nearly
+380 machine-readable deprecation files, over a hundred of them recording impact,
+scope and the role that has to act, gave 27 months of runway on its CI job-token
+removal, and publishes a breaking-changes guide about a month before each major
+release. GitHub says so when a new default is not retroactive — its February 2023
+token change reads *"This change will not impact any existing enterprises,
+organizations or repositories."* Azure DevOps scopes its new defaults the same
+way, to organisations created after the change. When GitHub actually retired a
+protection primitive, tag protections, it gave three months' notice, had shipped
+a migration tool seven months before that notice, ran three escalating API
+brownouts, and auto-migrated anything left behind. Rule Insights went GA in
+August 2026 and shows ruleset evaluations across an organisation, with the most
+active bypassers ranked.
 
 Most platform changes make things stricter, not looser. And most posture loss in
 real organisations is self-inflicted: somebody renamed a job, somebody left a
@@ -127,10 +128,16 @@ merge them yourself using GitHub's documented precedence — which is
 most-restrictive-wins, and which I could not test properly because it needs two
 approving identities.
 
-A tool reading only the classic endpoint 404s on a ruleset-only repository.
-Renovate hits exactly this and swallows it. A tool reading only the rules endpoint
-reports "unprotected" on a branch protected the old way. Both failure modes are
-silent, and they point in opposite directions.
+A tool reading only the classic endpoint 404s on a ruleset-only repository. A tool
+reading only the rules endpoint reports "unprotected" on a branch protected the
+old way. Both failure modes are silent, and they point in opposite directions.
+(Renovate, for one, gets this right: it checks rulesets first and falls back to
+classic protection.)
+
+In August 2026 GitHub added a "Convert to ruleset" button that maps a classic rule
+into an equivalent ruleset. It is per rule and opt-in, and the announcement does
+not retire classic protection, so until every rule on every branch is converted,
+both sources still have to be read.
 
 This also explains something I had been puzzled by. Compliance automation
 platforms are inconsistent here in ways that look careless until you try it
@@ -154,9 +161,9 @@ It does not — exempt, always, and no-bypass-at-all all report identically. Tha
 makes it cleaner than I thought, and worse: the view that looks like "what
 protects this branch" omits who does not have to obey it.
 
-For what it is worth, `exempt` appears zero times across the seven admin-facing
-rulesets documentation pages, while `bypass` appears between three and seven times
-in each.
+For what it is worth, across the six rulesets articles in GitHub's documentation
+(as of October 2026), `exempt` never appears as a bypass mode — its one occurrence
+is about file paths — while `bypass` appears up to 22 times in a single article.
 
 **On a free organisation, making a repository private makes its protections
 unreadable.** Both endpoints return HTTP 403:
@@ -192,8 +199,8 @@ The claim is narrower:
 
 Tenant vintage is the one people miss. GitHub's `GITHUB_TOKEN` read-only default
 arrived in February 2023 and explicitly did not apply to existing organisations —
-so every organisation created before then is still read/write while every document
-says the default is read-only. Azure DevOps scoped pipeline repository access by
+so organisations created before then remain read/write unless someone changed the
+setting, while every document says the default is read-only. Azure DevOps scoped pipeline repository access by
 default for *organisations created after May 2020*. GitLab 18.0 turned on CI
 job-token allowlists and, on GitLab.com, populated project allowlists from
 observed traffic — an allowlist nobody wrote. In all three cases two organisations
@@ -201,15 +208,16 @@ with identical exported configuration have different enforcement, and the only
 thing that distinguishes them is a signup date.
 
 Plan state is the one that is easiest to trip over by accident. Rulesets are not
-enforced on private repositories below GitHub Team. GitHub Advanced Security
+available on private repositories under GitHub Free. GitHub Advanced Security
 controls stop applying when licences lapse. Bitbucket's enforced merge checks are
 Premium-only, and below that *"we'll warn users when they have unresolved merge
 checks, but they'll still be able to merge."* Identical configuration, enforcement
 off, no event anywhere.
 
 And one more that is not a change at all, just a permanent property worth knowing:
-*"A job that is skipped will report its status as 'Success'. It will not prevent a
-pull request from merging, even if it is a required check."* Adding an `if:` to a
+GitHub's documentation says a job that is skipped *"will report its status as
+"Success". It will not prevent a pull request from merging, even if it is a
+required check."* Adding an `if:` to a
 job — in a pull request, not in settings — makes a required check pass vacuously,
 while branch protection still shows it as required. Skipping the whole *workflow*
 blocks. Skipping the *job* passes.
@@ -252,4 +260,27 @@ the exact before/after states, is
 
 If you know that any of this is wrong — particularly the claim that no single
 endpoint gives effective branch protection — I would genuinely like to be
-corrected.
+corrected. The easiest way is an issue on the
+[evidence repository](https://github.com/baseliner-sandbox/test-ruleset-precedence/issues);
+a paid-plan data point on the visibility toggle would be especially welcome.
+
+## Corrections
+
+**2026-10-06.** A source check before sharing this more widely turned up errors,
+now fixed in place:
+
+- I wrote that Renovate reads only classic protection and silently misses
+  ruleset-only repositories. That is wrong: it has checked rulesets first since
+  September 2025 ([renovatebot/renovate#38072](https://github.com/renovatebot/renovate/pull/38072)).
+- Rulesets are unavailable on private repositories under GitHub Free, not
+  "below GitHub Team"; GitHub Pro has them.
+- Several supporting details were stated more strongly than their sources
+  allow: the GitLab deprecation-file fields and release-post timing, GitHub's
+  non-retroactive wording, the Azure DevOps sprint-note count, the
+  tag-protection timeline, the docs word counts, Rule Insights being free, and
+  the `GITHUB_TOKEN` default for older organisations. Each now says what the
+  source says.
+- Added GitHub's August 2026 "Convert to ruleset" option, which the original
+  did not mention.
+
+None of these changes the main claim.
