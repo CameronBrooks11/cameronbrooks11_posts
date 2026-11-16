@@ -3,6 +3,7 @@ layout: post
 title: "A Real Introduction to High-Power Rocketry"
 date: 2025-07-06 9:04:36 -0400
 categories: Rocketry
+published: false # unfinished; notes in dump.md
 ---
 
 # A Real Introduction to High-Power Rocketry
